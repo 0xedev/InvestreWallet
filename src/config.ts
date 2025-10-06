@@ -1,5 +1,12 @@
 import { createAppKit } from "@reown/appkit";
-import { mainnet, polygon, arbitrum, optimism } from "@reown/appkit/networks";
+import {
+  mainnet,
+  polygon,
+  base,
+  solana,
+  arbitrum,
+  optimism,
+} from "@reown/appkit/networks";
 import type { AppKitNetwork } from "@reown/appkit/networks";
 
 // Get projectId from https://dashboard.reown.com
@@ -10,10 +17,14 @@ if (!projectId) {
 }
 
 // Define networks
-export const networks = [mainnet, polygon, arbitrum, optimism] as [
-  AppKitNetwork,
-  ...AppKitNetwork[]
-];
+export const networks = [
+  mainnet,
+  polygon,
+  base,
+  solana,
+  arbitrum,
+  optimism,
+] as [AppKitNetwork, ...AppKitNetwork[]];
 
 // Create AppKit instance with embedded wallet
 export const appKit = createAppKit({
@@ -22,7 +33,7 @@ export const appKit = createAppKit({
   metadata: {
     name: "InvestreWallet",
     description: "A modern crypto wallet application",
-    url: "https://investrewallet.com",
+    url: import.meta.env.DEV ? "http://localhost:5173" : "https://investrewallet.com",
     icons: ["https://investrewallet.com/icon.png"],
   },
   features: {
