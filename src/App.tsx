@@ -1,34 +1,32 @@
 import { useState, useEffect } from "react";
-import { getUniversalConnector } from "./config";
-import { UniversalConnector } from "@reown/appkit-universal-connector";
+import { appKit } from "./config";
+import { useAppKit, useAppKitState } from "@reown/appkit/react";
 import "./App.css";
 
 function App() {
-  const [universalConnector, setUniversalConnector] =
-    useState<UniversalConnector>();
-  const [session, setSession] = useState<any>();
+  const { open } = useAppKit();
+  const appKitState = useAppKitState();
+  const [balance, setBalance] = useState<string>("");
   const [isConnecting, setIsConnecting] = useState(false);
 
-  // Initialize the Universal Connector on component mount
-  useEffect(() => {
-    getUniversalConnector().then(setUniversalConnector);
-  }, []);
+  const isConnected = !!appKitState.activeChain;
+  const address = isConnected ? appKit.getAddress() : "";
 
-  // Set the session state in case it changes
+  // Update balance when connected
   useEffect(() => {
-    setSession(universalConnector?.provider.session);
-  }, [universalConnector?.provider.session]);
-
-  // Connect to wallet
-  const handleConnect = async () => {
-    if (!universalConnector) {
-      return;
+    if (isConnected && address) {
+      // TODO: get balance using ethers
+      setBalance("0.0"); // placeholder
+    } else {
+      setBalance("");
     }
+  }, [isConnected, address]);
 
+  // Connect to wallet (opens modal with embedded wallet option)
+  const handleConnect = async () => {
     setIsConnecting(true);
     try {
-      const { session: providerSession } = await universalConnector.connect();
-      setSession(providerSession);
+      await open();
     } catch (error) {
       console.error("Failed to connect:", error);
     } finally {
@@ -38,13 +36,8 @@ function App() {
 
   // Disconnect wallet
   const handleDisconnect = async () => {
-    if (!universalConnector) {
-      return;
-    }
-
     try {
-      await universalConnector.disconnect();
-      setSession(null);
+      await appKit.disconnect();
     } catch (error) {
       console.error("Failed to disconnect:", error);
     }
@@ -58,16 +51,16 @@ function App() {
       </header>
 
       <main className="app-main">
-        {!session ? (
+        {!isConnected ? (
           <div className="connect-section">
             <h2>Connect Your Wallet</h2>
             <p>
-              Connect to your favorite wallet to start managing your crypto
-              assets securely.
+              Connect to your favorite wallet or create a new embedded wallet to
+              start managing your crypto assets securely.
             </p>
             <button
               onClick={handleConnect}
-              disabled={isConnecting || !universalConnector}
+              disabled={isConnecting}
               className="connect-button"
             >
               {isConnecting ? "Connecting..." : "Connect Wallet"}
@@ -76,24 +69,35 @@ function App() {
         ) : (
           <div className="wallet-section">
             <h2>Wallet Connected</h2>
-            <div className="session-info">
+            <div className="wallet-info">
               <p>
-                <strong>Connected to:</strong>{" "}
-                {session.peer?.metadata?.name || "Unknown Wallet"}
+                <strong>Address:</strong> {address}
               </p>
               <p>
-                <strong>Address:</strong>{" "}
-                {session.namespaces?.eip155?.accounts?.[0]?.split(":")[2] ||
-                  "N/A"}
-              </p>
-              <p>
-                <strong>Network:</strong>{" "}
-                {session.namespaces?.eip155?.chains?.[0] || "N/A"}
+                <strong>Balance:</strong> {balance} ETH
               </p>
             </div>
-            <button onClick={handleDisconnect} className="disconnect-button">
-              Disconnect
-            </button>
+            <div className="action-buttons">
+              <button
+                onClick={() => {
+                  /* TODO: Send */
+                }}
+                className="send-button"
+              >
+                Send
+              </button>
+              <button
+                onClick={() => {
+                  /* TODO: Receive */
+                }}
+                className="receive-button"
+              >
+                Receive
+              </button>
+              <button onClick={handleDisconnect} className="disconnect-button">
+                Disconnect
+              </button>
+            </div>
           </div>
         )}
       </main>

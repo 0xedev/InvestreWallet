@@ -1,6 +1,6 @@
+import { createAppKit } from "@reown/appkit";
+import { mainnet, polygon, arbitrum, optimism } from "@reown/appkit/networks";
 import type { AppKitNetwork } from "@reown/appkit/networks";
-import type { CustomCaipNetwork } from "@reown/appkit-common";
-import { UniversalConnector } from "@reown/appkit-universal-connector";
 
 // Get projectId from https://dashboard.reown.com
 export const projectId =
@@ -9,36 +9,26 @@ if (!projectId) {
   throw new Error("Project ID is not defined");
 }
 
-// you can configure your own network
-const BaseMainnet: CustomCaipNetwork<"sui"> = {
-  id: 8453,
-  chainNamespace: "sui" as const,
-  caipNetworkId: "sui:mainnet",
-  name: "Sui",
-  nativeCurrency: { name: "SUI", symbol: "SUI", decimals: 9 },
-  rpcUrls: { default: { http: ["https://fullnode.mainnet.sui.io:443"] } },
-};
+// Define networks
+export const networks = [mainnet, polygon, arbitrum, optimism] as [
+  AppKitNetwork,
+  ...AppKitNetwork[]
+];
 
-export const networks = [BaseMainnet] as [AppKitNetwork, ...AppKitNetwork[]];
-
-export async function getUniversalConnector() {
-  const universalConnector = await UniversalConnector.init({
-    projectId,
-    metadata: {
-      name: "Universal Connector",
-      description: "Universal Connector",
-      url: "https://appkit.reown.com",
-      icons: ["https://appkit.reown.com/icon.png"],
-    },
-    networks: [
-      {
-        methods: ["BaseMainnet_signPersonalMessage"],
-        chains: [BaseMainnet as CustomCaipNetwork],
-        events: [],
-        namespace: "BaseMainnet",
-      },
-    ],
-  });
-
-  return universalConnector;
-}
+// Create AppKit instance with embedded wallet
+export const appKit = createAppKit({
+  projectId,
+  networks,
+  metadata: {
+    name: "InvestreWallet",
+    description: "A modern crypto wallet application",
+    url: "https://investrewallet.com",
+    icons: ["https://investrewallet.com/icon.png"],
+  },
+  features: {
+    analytics: true,
+    email: false,
+    socials: false,
+    emailShowWallets: false,
+  },
+});
