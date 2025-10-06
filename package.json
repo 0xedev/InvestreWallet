@@ -10,6 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@reown/appkit": "^1.8.8",
+    "@reown/appkit-common": "^1.8.8",
+    "@reown/appkit-universal-connector": "^1.8.8",
+    "@reown/walletkit": "^1.2.11",
+    "@walletconnect/core": "^2.21.10",
+    "@walletconnect/utils": "^2.21.10",
+    "ethers": "^6.15.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
